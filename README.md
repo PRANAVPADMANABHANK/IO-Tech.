@@ -1,234 +1,310 @@
 # Law Firm Website
 
-A professional law firm website built with Next.js 15, TypeScript, Tailwind CSS, and Redux Toolkit. The website features a dark brown theme with multilingual support (Arabic/English) and comprehensive legal services.
+A modern, responsive law firm website built with Next.js 15, TypeScript, Tailwind CSS, and Redux Toolkit. Features multilingual support (Arabic/English), CMS integration with Strapi, and a comprehensive set of legal services.
 
-## Features
+## 🚀 Features
 
-### ✅ Implemented Features
+### Core Features
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Multilingual Support**: Arabic (RTL) and English (LTR) with automatic language switching
+- **CMS Integration**: Strapi CMS for content management
+- **Search Functionality**: Global search across team members and services
+- **Form Handling**: Contact forms and newsletter subscription with Formik validation
+- **Performance Optimized**: SSG/SSR support, image optimization, and loading states
 
-#### Header Navigation
-- ✅ Responsive navbar with logo and navigation links
-- ✅ Services dropdown with comprehensive service categories
-- ✅ Search functionality with categorized results (Team & Services)
-- ✅ Multilingual support (AR/EN) with RTL for Arabic
-- ✅ "Book Appointment" button
+### Components
+- **HeaderNavigation**: Responsive navbar with services dropdown and language toggle
+- **HeroSection**: Auto-playing slider with background images/videos
+- **TeamSection**: Team member showcase with carousel
+- **ClientsSection**: Client logos and testimonials
+- **ServicesSection**: Comprehensive legal services display
+- **Footer**: Newsletter subscription and contact information
 
-#### Hero Section
-- ✅ Background images/videos from CMS (simulated)
-- ✅ Auto-play slider with smooth transitions
-- ✅ Multilingual support with RTL for Arabic
-- ✅ Professional lawyer image integration
+### Technical Stack
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS
+- **State Management**: Redux Toolkit
+- **Forms**: Formik with Yup validation
+- **Styling**: Tailwind CSS with custom design system
+- **CMS**: Strapi (headless CMS)
+- **Internationalization**: Custom translation system with RTL support
 
-#### Our Team
-- ✅ Team members display with images, names, and roles
-- ✅ Carousel navigation for team members
-- ✅ Responsive grid layout
+## 📋 Prerequisites
 
-#### Services Section
-- ✅ Comprehensive legal services display
-- ✅ Service categories and descriptions
-- ✅ Call-to-action for consultations
-
-#### Testimonials Section
-- ✅ Client testimonials with ratings
-- ✅ Carousel navigation
-- ✅ Professional presentation
-
-#### Footer
-- ✅ Multiple link categories
-- ✅ Newsletter subscription form with Formik validation
-- ✅ Email validation with duplicate prevention
-- ✅ Success/error message handling
-- ✅ Multilingual support
-
-#### Technical Implementation
-- ✅ **Frontend**: Next.js 15 with TypeScript
-- ✅ **Styling**: Tailwind CSS with dark brown theme
-- ✅ **State Management**: Redux Toolkit
-- ✅ **Form Handling**: Formik with Yup validation
-- ✅ **Multilingual**: RTL support for Arabic
-- ✅ **Performance**: Optimized images and loading states
-- ✅ **Routing**: Dynamic service pages (`/services/[service-id]`)
-- ✅ **Search**: Dedicated search page with categorized results
-
-### 🎨 Design Features
-- ✅ Dark brown, white, and black color scheme
-- ✅ Responsive design for all devices
-- ✅ Professional typography and spacing
-- ✅ Smooth animations and transitions
-- ✅ Grayscale/dark filter style for images
-
-## Project Structure
-
-```
-├── app/
-│   ├── globals.css          # Global styles with RTL support
-│   ├── layout.tsx           # Root layout with providers
-│   ├── page.tsx             # Homepage
-│   ├── search/page.tsx      # Search results page
-│   └── services/[service-id]/page.tsx  # Dynamic service pages
-├── components/
-│   ├── Header.tsx           # Navigation with search and language
-│   ├── HeroSection.tsx      # Hero with carousel controls
-│   ├── ServicesSection.tsx  # Services display
-│   ├── TeamSection.tsx      # Team members carousel
-│   ├── TestimonialsSection.tsx  # Client testimonials
-│   ├── Footer.tsx           # Footer with subscription form
-│   ├── SearchModal.tsx      # Search modal component
-│   ├── providers.tsx        # Redux and other providers
-│   └── ui/                  # Shadcn/ui components
-├── lib/
-│   ├── store.ts             # Redux store configuration
-│   ├── hooks.ts             # Typed Redux hooks
-│   └── slices/              # Redux slices
-│       ├── searchSlice.ts   # Search state management
-│       ├── languageSlice.ts # Language/RTL state
-│       └── formSlice.ts     # Form state management
-└── hooks/
-    └── use-toast.ts         # Toast notifications
-```
-
-## State Management
-
-### Redux Store Structure
-- **Search State**: Query, results, loading, modal state
-- **Language State**: Current language (EN/AR), RTL support
-- **Form State**: Subscription and appointment form states
-
-### Key Features
-- Search functionality with categorized results
-- Language switching with RTL support
-- Form validation and error handling
-- Toast notifications for user feedback
-
-## Getting Started
-
-### Prerequisites
 - Node.js 18+ 
 - npm or yarn
+- Strapi CMS (optional, for full functionality)
 
-### Installation
+## 🛠️ Installation
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd lawfirm-website
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd i-o-tech.net
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Environment Setup**
+   Create a `.env.local` file in the root directory:
+   ```env
+   # Strapi CMS Configuration
+   NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
+   STRAPI_API_TOKEN=your-strapi-api-token
+   
+   # Next.js Configuration
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+5. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🏗️ Project Structure
+
+```
+i-o-tech.net/
+├── app/                    # Next.js 13+ app directory
+│   ├── globals.css        # Global styles and CSS variables
+│   ├── layout.tsx         # Root layout component
+│   ├── page.tsx           # Home page
+│   ├── search/            # Search results page
+│   └── services/          # Service pages
+├── components/            # Reusable components
+│   ├── ui/               # Shadcn/ui components
+│   ├── Header.tsx        # Navigation header
+│   ├── HeroSection.tsx   # Hero section with slider
+│   ├── TeamSection.tsx   # Team members section
+│   ├── ClientsSection.tsx # Clients and testimonials
+│   ├── Footer.tsx        # Footer with newsletter
+│   └── SearchModal.tsx   # Search modal component
+├── lib/                  # Utility functions and configurations
+│   ├── api.ts           # Strapi API service
+│   ├── store.ts         # Redux store configuration
+│   ├── slices/          # Redux slices
+│   ├── translations.ts  # Translation system
+│   └── utils.ts         # Utility functions
+├── hooks/               # Custom React hooks
+│   └── use-translations.ts
+└── public/              # Static assets
 ```
 
-2. Install dependencies:
-```bash
-npm install
+## 🎨 Design System
+
+### Colors
+The project uses a custom brown-based color scheme:
+
+```css
+/* CSS Variables */
+--brown-primary: 25 45% 30%;    /* Dark brown */
+--brown-secondary: 30 35% 25%;  /* Medium brown */
+--brown-light: 30 25% 85%;      /* Light brown */
+--brown-dark: 20 35% 15%;       /* Very dark brown */
 ```
 
-3. Run the development server:
-```bash
-npm run dev
+### Typography
+- **Primary Font**: System fonts with fallbacks
+- **Arabic Font**: System Arabic fonts
+- **Font Sizes**: Responsive typography scale
+
+## 🌐 Multilingual Support
+
+### Translation System
+The website supports Arabic and English with automatic RTL/LTR switching:
+
+```typescript
+// Using translations in components
+import { useTranslations } from '@/hooks/use-translations';
+
+const { t, currentLanguage } = useTranslations();
+const title = t('hero.title'); // Returns translated text
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+### RTL Support
+- Automatic text direction switching
+- Layout adjustments for Arabic
+- Proper spacing and alignment
 
-### Available Scripts
+## 🔍 Search Functionality
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+### Global Search
+- Search across team members and services
+- Real-time search results
+- Categorized results display
+- Search modal with keyboard navigation
 
-## Dependencies
+### Search Implementation
+```typescript
+// Search functionality
+const handleSearch = async (query: string) => {
+  const results = await apiService.search(query);
+  // Update Redux state with results
+};
+```
 
-### Core Dependencies
-- **Next.js 15** - React framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Utility-first CSS framework
-- **Redux Toolkit** - State management
-- **Formik** - Form handling
-- **Yup** - Form validation
-- **React Redux** - Redux React bindings
+## 📝 Forms and Validation
 
-### UI Components
-- **Shadcn/ui** - Component library
-- **Lucide React** - Icons
-- **Tailwind CSS Animate** - Animations
+### Newsletter Subscription
+- Email validation with Yup
+- Duplicate email prevention
+- Success/error messaging
+- Formik integration
 
-## CMS Integration (Strapi)
+### Contact Forms
+- Comprehensive form validation
+- File upload support
+- Email notifications
+- Form state management
 
-The website is designed to integrate with Strapi CMS for content management:
+## 🎯 CMS Integration
 
-### Required Collections
-- **Pages** - Static page content
-- **Services** - Legal services with details
-- **Team Members** - Team profiles and images
-- **Blog** - Blog posts and articles
-- **Clients** - Client testimonials and logos
-- **Subscribers** - Newsletter subscribers
+### Strapi Setup
+1. **Install Strapi**
+   ```bash
+   npx create-strapi-app@latest my-law-firm-cms
+   ```
+
+2. **Create Content Types**
+   - Services
+   - Team Members
+   - Clients
+   - Testimonials
+   - Subscribers
+   - Contact Submissions
+   - Appointments
+
+3. **Configure API**
+   - Set up API tokens
+   - Configure CORS
+   - Set up media uploads
 
 ### API Endpoints
-- Content fetching for dynamic pages
-- Form submissions (subscription, appointments)
-- Search functionality
-- Image and media management
+```typescript
+// Available API endpoints
+GET /api/services          // Get all services
+GET /api/services/:slug    // Get specific service
+GET /api/team-members      // Get team members
+GET /api/clients           // Get clients
+GET /api/testimonials      // Get testimonials
+POST /api/subscribers      // Subscribe to newsletter
+POST /api/contact-submissions // Submit contact form
+POST /api/appointments     // Book appointment
+```
 
-## Multilingual Support
+## 🚀 Deployment
 
-### Features
-- Arabic (AR) and English (EN) language support
-- RTL (Right-to-Left) layout for Arabic
-- Language switching with Redux state management
-- Proper text direction and alignment
+### Vercel Deployment
+1. **Connect to Vercel**
+   ```bash
+   npm install -g vercel
+   vercel login
+   vercel
+   ```
 
-### Implementation
-- Redux state for language management
-- CSS classes for RTL support
-- Dynamic content based on language selection
+2. **Environment Variables**
+   Set up environment variables in Vercel dashboard:
+   - `NEXT_PUBLIC_STRAPI_URL`
+   - `STRAPI_API_TOKEN`
 
-## Performance Optimizations
+3. **Build Configuration**
+   ```json
+   {
+     "buildCommand": "npm run build",
+     "outputDirectory": ".next",
+     "installCommand": "npm install"
+   }
+   ```
 
-- ✅ Image optimization with Next.js Image component
-- ✅ Lazy loading for components
-- ✅ Debounced search functionality
-- ✅ Optimized bundle size
-- ✅ Loading states for better UX
+### Other Platforms
+- **Netlify**: Configure build settings and environment variables
+- **AWS Amplify**: Use Amplify CLI for deployment
+- **Docker**: Use provided Dockerfile for containerized deployment
 
-## Future Enhancements
+## 🔧 Development
 
-### Planned Features
-- [ ] Strapi CMS integration
-- [ ] Blog functionality
-- [ ] Contact form with appointment booking
-- [ ] Advanced search filters
-- [ ] SEO optimization
-- [ ] Analytics integration
-- [ ] PWA capabilities
+### Available Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript check
+```
 
-### Technical Improvements
-- [ ] API route implementation
-- [ ] Database integration
-- [ ] Authentication system
-- [ ] Admin dashboard
-- [ ] Content management system
+### Code Quality
+- **ESLint**: Code linting and formatting
+- **TypeScript**: Type safety and IntelliSense
+- **Prettier**: Code formatting
+- **Husky**: Git hooks for code quality
 
-## Contributing
+## 📊 Performance
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+### Optimization Techniques
+- **Image Optimization**: Next.js Image component
+- **Code Splitting**: Automatic route-based splitting
+- **Lazy Loading**: Component and image lazy loading
+- **Caching**: Static generation and ISR
+- **Bundle Analysis**: Webpack bundle analyzer
 
-## License
+### Performance Monitoring
+- **Core Web Vitals**: LCP, FID, CLS tracking
+- **Analytics**: Google Analytics integration
+- **Error Tracking**: Error boundary implementation
 
-This project is licensed under the MIT License.
+## 🤝 Contributing
 
-## Support
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Commit your changes**
+   ```bash
+   git commit -m 'Add amazing feature'
+   ```
+4. **Push to the branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+5. **Open a Pull Request**
 
-For support or questions, please contact the development team.
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support and questions:
+- **Documentation**: Check the project documentation
+- **Issues**: Create an issue on GitHub
+- **Email**: Contact the development team
+
+## 🔄 Updates
+
+### Version History
+- **v1.0.0**: Initial release with core features
+- **v1.1.0**: Added multilingual support
+- **v1.2.0**: Enhanced CMS integration
+- **v1.3.0**: Performance optimizations
+
+### Upcoming Features
+- [ ] Blog system integration
+- [ ] Advanced appointment booking
+- [ ] Client portal
+- [ ] Document management
+- [ ] Video consultations
+- [ ] Mobile app
 
 ---
 
-**Note**: This is a frontend implementation. For production deployment, you'll need to:
-1. Set up Strapi CMS backend
-2. Configure environment variables
-3. Set up hosting and deployment
-4. Implement API routes for data fetching
-5. Add proper SEO meta tags
-6. Configure analytics and monitoring
+**Built with ❤️ using Next.js, TypeScript, and Tailwind CSS**

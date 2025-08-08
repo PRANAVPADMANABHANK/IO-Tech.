@@ -6,25 +6,28 @@ import { Input } from "@/components/ui/input";
 import { X, Search, Users, Briefcase } from "lucide-react";
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setQuery, setResults, setIsLoading, setIsSearchOpen } from '@/lib/slices/searchSlice';
+import { useTranslations } from '@/hooks/use-translations';
+import Link from 'next/link';
 
 const SearchModal = () => {
   const dispatch = useAppDispatch();
   const { query, results, isLoading, isSearchOpen } = useAppSelector(state => state.search);
   const [searchValue, setSearchValue] = useState('');
+  const { t, currentLanguage } = useTranslations();
 
   // Mock data for search results
   const mockTeamMembers = [
-    { id: 1, name: "Michael Johnson", role: "Senior Partner", type: "team" },
-    { id: 2, name: "Sarah Williams", role: "Managing Partner", type: "team" },
-    { id: 3, name: "David Chen", role: "Associate Partner", type: "team" },
+    { id: 1, name: "Michael Johnson", role: "Senior Partner", type: "team", href: "/team/michael-johnson" },
+    { id: 2, name: "Sarah Williams", role: "Managing Partner", type: "team", href: "/team/sarah-williams" },
+    { id: 3, name: "David Chen", role: "Associate Partner", type: "team", href: "/team/david-chen" },
   ];
 
   const mockServices = [
-    { id: 1, name: "Legal Consultation Services", type: "service" },
-    { id: 2, name: "Foreign Investment Services", type: "service" },
-    { id: 3, name: "Corporate Governance Services", type: "service" },
-    { id: 4, name: "Arbitration", type: "service" },
-    { id: 5, name: "Intellectual Property", type: "service" },
+    { id: 1, name: t('services.consultation'), type: "service", href: "/services/legal-consultation" },
+    { id: 2, name: t('services.investment'), type: "service", href: "/services/foreign-investment" },
+    { id: 3, name: t('services.governance'), type: "service", href: "/services/governance" },
+    { id: 4, name: t('services.arbitration'), type: "service", href: "/services/arbitration" },
+    { id: 5, name: t('services.intellectual'), type: "service", href: "/services/intellectual-property" },
   ];
 
   const handleSearch = async (searchTerm: string) => {
@@ -86,6 +89,10 @@ const SearchModal = () => {
     }
   };
 
+  const handleResultClick = () => {
+    handleClose();
+  };
+
   if (!isSearchOpen) return null;
 
   return (
@@ -93,12 +100,13 @@ const SearchModal = () => {
       <div className="bg-brown-primary rounded-lg shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-brown-secondary">
-          <h2 className="text-xl font-semibold text-primary-foreground">Search</h2>
+          <h2 className="text-xl font-semibold text-primary-foreground">{t('common.search')}</h2>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleClose}
             className="text-primary-foreground hover:bg-brown-secondary"
+            aria-label={t('common.close')}
           >
             <X className="w-5 h-5" />
           </Button>
@@ -111,7 +119,7 @@ const SearchModal = () => {
             <Input
               id="search-input"
               type="text"
-              placeholder="Search for team members, services..."
+              placeholder={t('header.search.placeholder')}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -125,11 +133,11 @@ const SearchModal = () => {
           {isLoading ? (
             <div className="text-center text-brown-light">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-foreground mx-auto"></div>
-              <p className="mt-2">Searching...</p>
+              <p className="mt-2">{t('common.loading')}</p>
             </div>
           ) : query && results.length === 0 ? (
             <div className="text-center text-brown-light">
-              <p>No results found for "{query}"</p>
+              <p>{t('header.search.noResults')} "{query}"</p>
             </div>
           ) : query && results.length > 0 ? (
             <div className="space-y-6">
@@ -138,17 +146,21 @@ const SearchModal = () => {
                 <div>
                   <div className="flex items-center space-x-2 mb-3">
                     <Users className="w-5 h-5 text-brown-light" />
-                    <h3 className="text-lg font-semibold text-primary-foreground">Team Members</h3>
+                    <h3 className="text-lg font-semibold text-primary-foreground">
+                      {currentLanguage === 'en' ? 'Team Members' : 'أعضاء الفريق'}
+                    </h3>
                   </div>
                   <div className="space-y-2">
                     {results.filter(result => result.type === 'team').map((member) => (
-                      <div
+                      <Link
                         key={member.id}
-                        className="p-3 bg-brown-secondary rounded-lg hover:bg-brown-secondary/80 transition-colors cursor-pointer"
+                        href={member.href}
+                        onClick={handleResultClick}
+                        className="p-3 bg-brown-secondary rounded-lg hover:bg-brown-secondary/80 transition-colors cursor-pointer block"
                       >
                         <div className="font-medium text-primary-foreground">{member.name}</div>
                         <div className="text-sm text-brown-light">{member.role}</div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -159,16 +171,20 @@ const SearchModal = () => {
                 <div>
                   <div className="flex items-center space-x-2 mb-3">
                     <Briefcase className="w-5 h-5 text-brown-light" />
-                    <h3 className="text-lg font-semibold text-primary-foreground">Services</h3>
+                    <h3 className="text-lg font-semibold text-primary-foreground">
+                      {currentLanguage === 'en' ? 'Services' : 'الخدمات'}
+                    </h3>
                   </div>
                   <div className="space-y-2">
                     {results.filter(result => result.type === 'service').map((service) => (
-                      <div
+                      <Link
                         key={service.id}
-                        className="p-3 bg-brown-secondary rounded-lg hover:bg-brown-secondary/80 transition-colors cursor-pointer"
+                        href={service.href}
+                        onClick={handleResultClick}
+                        className="p-3 bg-brown-secondary rounded-lg hover:bg-brown-secondary/80 transition-colors cursor-pointer block"
                       >
                         <div className="font-medium text-primary-foreground">{service.name}</div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -177,7 +193,7 @@ const SearchModal = () => {
           ) : (
             <div className="text-center text-brown-light">
               <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Start typing to search for team members and services</p>
+              <p>{t('header.search.startTyping')}</p>
             </div>
           )}
         </div>

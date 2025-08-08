@@ -3,13 +3,13 @@ import Footer from "@/components/Footer"
 import SearchModal from "@/components/SearchModal"
 
 interface ServicePageProps {
-  params: {
+  params: Promise<{
     'service-id': string
-  }
+  }>
 }
 
-export default function ServicePage({ params }: ServicePageProps) {
-  const serviceId = params['service-id']
+export default async function ServicePage({ params }: ServicePageProps) {
+  const { 'service-id': serviceId } = await params
 
   // Mock service data - in real app this would come from Strapi CMS
   const serviceData = {

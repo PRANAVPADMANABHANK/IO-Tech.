@@ -9,17 +9,20 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setSubscriptionEmail, setSubscriptionSubmitting, setSubscriptionSubmitted, setSubscriptionError, resetSubscription } from '@/lib/slices/formSlice';
+import { useTranslations } from '@/hooks/use-translations';
+import Link from 'next/link';
 
 const Footer = () => {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const { email, isSubmitting, isSubmitted, error } = useAppSelector((state: any) => state.form.subscription);
+  const { t, currentLanguage } = useTranslations();
 
   // Validation schema for subscription form
   const subscriptionSchema = Yup.object().shape({
     email: Yup.string()
-      .email('Please enter a valid email address')
-      .required('Email is required'),
+      .email(currentLanguage === 'en' ? 'Please enter a valid email address' : 'يرجى إدخال عنوان بريد إلكتروني صحيح')
+      .required(currentLanguage === 'en' ? 'Email is required' : 'البريد الإلكتروني مطلوب'),
   });
 
   const handleSubscribe = async (values: { email: string }, { resetForm }: any) => {
@@ -33,10 +36,10 @@ const Footer = () => {
       // Check for duplicate email (simulated)
       const existingEmails = ['test@example.com', 'existing@email.com'];
       if (existingEmails.includes(values.email)) {
-        dispatch(setSubscriptionError('This email is already subscribed'));
+        dispatch(setSubscriptionError(t('footer.newsletter.duplicate')));
         toast({
-          title: "Error",
-          description: "This email is already subscribed to our newsletter",
+          title: t('common.error'),
+          description: t('footer.newsletter.duplicate'),
           variant: "destructive",
         });
         return;
@@ -48,14 +51,14 @@ const Footer = () => {
       resetForm();
       
       toast({
-        title: "Success!",
-        description: "Thank you for subscribing to our newsletter",
+        title: t('common.success'),
+        description: t('footer.newsletter.success'),
       });
     } catch (error) {
-      dispatch(setSubscriptionError('Failed to subscribe. Please try again.'));
+      dispatch(setSubscriptionError(t('footer.newsletter.error')));
       toast({
-        title: "Error",
-        description: "Failed to subscribe. Please try again.",
+        title: t('common.error'),
+        description: t('footer.newsletter.error'),
         variant: "destructive",
       });
     } finally {
@@ -64,35 +67,22 @@ const Footer = () => {
   };
 
   const footerLinks = {
-    "About": [
-      "About Us",
-      "Our Team", 
-      "Practice Areas",
-      "Case Studies",
-      "Awards & Recognition"
-    ],
-    "Services": [
-      "Corporate Law",
-      "Criminal Defense",
-      "Family Law", 
-      "Real Estate Law",
-      "Personal Injury",
-      "Immigration Law"
-    ],
-    "Resources": [
-      "Legal Blog",
-      "FAQ",
-      "Legal Forms",
-      "Consultation Process",
-      "Client Resources"
-    ],
-    "Contact": [
-      "Contact Information",
-      "Office Locations",
-      "Schedule Consultation",
-      "Emergency Contact",
-      "Careers"
-    ]
+    about: {
+      title: t('footer.links.about.title'),
+      items: t('footer.links.about.items').split(',')
+    },
+    services: {
+      title: t('footer.links.services.title'),
+      items: t('footer.links.services.items').split(',')
+    },
+    resources: {
+      title: t('footer.links.resources.title'),
+      items: t('footer.links.resources.items').split(',')
+    },
+    contact: {
+      title: t('footer.links.contact.title'),
+      items: t('footer.links.contact.items').split(',')
+    }
   };
 
   return (
@@ -103,48 +93,47 @@ const Footer = () => {
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-6">
-              <div className="text-primary-foreground">
-                <div className="text-sm font-semibold">محمد بن عبد العيني</div>
-                <div className="text-xs opacity-80">MOHAMMAD BIN ABDUL AL-AINI</div>
-              </div>
+              <Link href="/" className="text-primary-foreground hover:text-brown-light transition-colors">
+                <div className="text-sm font-semibold">{t('header.logo.arabicName')}</div>
+                <div className="text-xs opacity-80">{t('header.logo.name')}</div>
+              </Link>
             </div>
             <p className="text-brown-light mb-6 leading-relaxed">
-              Providing exceptional legal services with integrity, expertise, and dedication. 
-              Our experienced team is committed to protecting your rights and achieving the best possible outcomes.
+              {t('footer.description')}
             </p>
             
             {/* Contact Info */}
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-brown-light" />
-                <span className="text-brown-light">+1 (555) 123-4567</span>
+                <span className="text-brown-light">{t('footer.contact.phone')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-brown-light" />
-                <span className="text-brown-light">info@lawfirm.com</span>
+                <span className="text-brown-light">{t('footer.contact.email')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="w-5 h-5 text-brown-light" />
-                <span className="text-brown-light">123 Legal Street, Law City, LC 12345</span>
+                <span className="text-brown-light">{t('footer.contact.address')}</span>
               </div>
             </div>
           </div>
 
           {/* Footer Links */}
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title}>
+          {Object.entries(footerLinks).map(([key, section]) => (
+            <div key={key}>
               <h3 className="text-lg font-semibold mb-4 text-primary-foreground">
-                {title}
+                {section.title}
               </h3>
               <ul className="space-y-2">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a 
+                {section.items.map((link, index) => (
+                  <li key={index}>
+                    <Link 
                       href="#" 
                       className="text-brown-light hover:text-primary-foreground transition-colors duration-200"
                     >
                       {link}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -155,9 +144,9 @@ const Footer = () => {
         {/* Newsletter Subscription */}
         <div className="border-t border-brown-secondary/30 mt-12 pt-12">
           <div className="max-w-md mx-auto text-center">
-            <h3 className="text-xl font-semibold mb-4">Subscribe to Our Newsletter</h3>
+            <h3 className="text-xl font-semibold mb-4">{t('footer.newsletter.title')}</h3>
             <p className="text-brown-light mb-6">
-              Stay updated with the latest legal insights and firm news
+              {t('footer.newsletter.subtitle')}
             </p>
             
             <Formik
@@ -172,7 +161,7 @@ const Footer = () => {
                       as={Input}
                       type="email"
                       name="email"
-                      placeholder="Enter your email"
+                      placeholder={t('footer.newsletter.placeholder')}
                       className="bg-brown-secondary border-brown-secondary text-primary-foreground placeholder:text-brown-light"
                     />
                     {errors.email && touched.email && (
@@ -186,7 +175,7 @@ const Footer = () => {
                     disabled={isSubmitting || formikSubmitting}
                     className="bg-accent hover:bg-accent/90 text-primary-foreground disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                    {isSubmitting ? t('common.subscribing') : t('common.subscribe')}
                   </Button>
                 </Form>
               )}
@@ -200,7 +189,7 @@ const Footer = () => {
             
             {isSubmitted && (
               <div className="text-green-400 text-sm mt-2">
-                Successfully subscribed!
+                {t('footer.newsletter.success')}
               </div>
             )}
           </div>
@@ -213,7 +202,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             {/* Copyright */}
             <div className="text-brown-light text-sm mb-4 md:mb-0">
-              © 2024 LawFirm. All rights reserved. | Privacy Policy | Terms of Service
+              {t('footer.copyright')}
             </div>
 
             {/* Social Media */}
@@ -228,6 +217,7 @@ const Footer = () => {
                   key={name}
                   href={href}
                   className="w-10 h-10 bg-brown-secondary rounded-full flex items-center justify-center hover:bg-accent transition-colors duration-200"
+                  aria-label={name}
                 >
                   <Icon className="w-5 h-5 text-primary-foreground" />
                 </a>

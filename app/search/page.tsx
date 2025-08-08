@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,7 +11,7 @@ import { Search, Users, Briefcase } from "lucide-react";
 import { useAppDispatch } from '@/lib/hooks';
 import { setQuery, setResults, setIsLoading } from '@/lib/slices/searchSlice';
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const dispatch = useAppDispatch();
@@ -197,5 +197,17 @@ export default function SearchPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brown-primary"></div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }
