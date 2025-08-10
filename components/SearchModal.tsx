@@ -7,35 +7,20 @@ import { X, Search, Users, Briefcase } from "lucide-react";
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setQuery, setResults, setIsLoading, setIsSearchOpen } from '@/lib/slices/searchSlice';
 import { useTranslations } from '@/hooks/use-translations';
+import { apiService } from '@/lib/api';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const SearchModal = () => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { query, results, isLoading, isSearchOpen } = useAppSelector(state => state.search);
   const [searchValue, setSearchValue] = useState('');
   const { t, currentLanguage } = useTranslations();
 
-  // Mock data for search results
-  const mockTeamMembers = [
-    { id: 1, name: "Michael Johnson", role: "Senior Partner", type: "team", href: "/team/michael-johnson" },
-    { id: 2, name: "Sarah Williams", role: "Managing Partner", type: "team", href: "/team/sarah-williams" },
-    { id: 3, name: "David Chen", role: "Associate Partner", type: "team", href: "/team/david-chen" },
-  ];
-
-  const mockServices = [
-    { id: 1, name: t('services.consultation'), type: "service", href: "/services/legal-consultation" },
-    { id: 2, name: t('services.investment'), type: "service", href: "/services/foreign-investment" },
-    { id: 3, name: t('services.governance'), type: "service", href: "/services/governance" },
-    { id: 4, name: t('services.arbitration'), type: "service", href: "/services/arbitration" },
-    { id: 5, name: t('services.intellectual'), type: "service", href: "/services/intellectual-property" },
-  ];
-
   const handleSearch = async (searchTerm: string) => {
     dispatch(setQuery(searchTerm));
     dispatch(setIsLoading(true));
-
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
 
     if (searchTerm.trim() === '') {
       dispatch(setResults([]));
@@ -43,19 +28,41 @@ const SearchModal = () => {
       return;
     }
 
-    // Filter results based on search term
-    const teamResults = mockTeamMembers.filter(member =>
-      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    try {
+      // Use Strapi API for search
+      const searchResults = await apiService.search(searchTerm);
+      
+      console.log('SearchModal - Search results from API:', searchResults);
+      console.log('SearchModal - Services found:', searchResults.services);
+      console.log('SearchModal - Team found:', searchResults.team);
+      
+      // Transform results to match the expected format
+      const teamResults = searchResults.team.map(member => ({
+        id: member.id,
+        name: member.name,
+        role: member.role,
+        type: "team" as const,
+        href: `/team/${member.id}`,
+      }));
 
-    const serviceResults = mockServices.filter(service =>
-      service.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+      const serviceResults = searchResults.services.map(service => ({
+        id: service.id,
+        name: service.title,
+        type: "service" as const,
+        href: `/services/${service.slug}`,
+      }));
 
-    const allResults = [...teamResults, ...serviceResults];
-    dispatch(setResults(allResults));
-    dispatch(setIsLoading(false));
+      console.log('SearchModal - Transformed team results:', teamResults);
+      console.log('SearchModal - Transformed service results:', serviceResults);
+
+      const allResults = [...teamResults, ...serviceResults];
+      dispatch(setResults(allResults));
+    } catch (error) {
+      console.error('Search error:', error);
+      dispatch(setResults([]));
+    } finally {
+      dispatch(setIsLoading(false));
+    }
   };
 
   useEffect(() => {
@@ -86,6 +93,16 @@ const SearchModal = () => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       handleClose();
+    } else if (e.key === 'Enter' && searchValue.trim()) {
+      handleSubmit();
+    }
+  };
+
+  const handleSubmit = () => {
+    if (searchValue.trim()) {
+      // Close modal and redirect to search page
+      handleClose();
+      router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`);
     }
   };
 
@@ -114,18 +131,26 @@ const SearchModal = () => {
 
         {/* Search Input */}
         <div className="p-6 border-b border-brown-secondary">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-brown-light w-5 h-5" />
-            <Input
-              id="search-input"
-              type="text"
-              placeholder={t('header.search.placeholder')}
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="pl-10 bg-brown-secondary border-brown-secondary text-primary-foreground placeholder:text-brown-light"
-            />
-          </div>
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-brown-light w-5 h-5" />
+              <Input
+                id="search-input"
+                type="text"
+                placeholder={t('header.search.placeholder') || 'Search for team members, services...'}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="pl-10 pr-20 bg-brown-secondary border-brown-secondary text-primary-foreground placeholder:text-brown-light"
+              />
+              <Button 
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-accent hover:bg-accent/90 text-primary-foreground px-3 py-1 text-sm"
+              >
+                Search
+              </Button>
+            </div>
+          </form>
         </div>
 
         {/* Results */}

@@ -4,6 +4,7 @@ import ServicesSection from "@/components/ServicesSection"
 import TeamSection from "@/components/TeamSection"
 import ClientsSection from "@/components/ClientsSection"
 import TestimonialsSection from "@/components/TestimonialsSection"
+import BlogSection from "@/components/BlogSection"
 import Footer from "@/components/Footer"
 import SearchModal from "@/components/SearchModal"
 
@@ -17,6 +18,7 @@ export default function Home() {
       <TeamSection />
       <ClientsSection />
       <TestimonialsSection />
+      <BlogSection />
       <Footer />
     </div>
   )

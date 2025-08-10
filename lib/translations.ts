@@ -20,8 +20,8 @@ export const translations = {
     },
     header: {
       logo: {
-        name: "MOHAMMAD BIN ABDUL AL-AINI",
-        arabicName: "محمد بن عبد العيني"
+        name: "IOT-TECH",
+        arabicName: "IOT-TECH"
       },
       navigation: {
         about: "About us",
@@ -72,6 +72,27 @@ export const translations = {
       agencies: "Commercial Agencies",
       vision2030: "Supporting Vision 2030",
       estates: "Estates"
+    },
+    blog: {
+      title: "Our Blog",
+      subtitle: "Latest insights and legal updates",
+      latestInsights: "Latest Insights",
+      latestInsightsSubtitle: "Stay updated with the latest legal insights, industry trends, and expert analysis from our team",
+      readMore: "Read More",
+      backToBlog: "Back to Blog",
+      shareThisPost: "Share This Post",
+      shareOnFacebook: "Share on Facebook",
+      shareOnTwitter: "Share on Twitter",
+      shareOnLinkedIn: "Share on LinkedIn",
+      needLegalAdvice: "Need legal advice?",
+      contactUs: "Contact Us",
+      tags: "Tags",
+      noPostsAvailable: "No blog posts available at the moment.",
+      loadingPosts: "Loading blog posts...",
+      retry: "Retry",
+      viewAllPosts: "View All Blog Posts",
+      by: "By",
+      publishedOn: "Published on"
     },
     footer: {
       description: "Providing exceptional legal services with integrity, expertise, and dedication.",
@@ -130,8 +151,8 @@ export const translations = {
     },
     header: {
       logo: {
-        name: "محمد بن عبد العيني",
-        arabicName: "MOHAMMAD BIN ABDUL AL-AINI"
+        name: "IOT-TECH",
+        arabicName: "IOT-TECH"
       },
       navigation: {
         about: "من نحن",
@@ -182,6 +203,27 @@ export const translations = {
       agencies: "الوكالات التجارية",
       vision2030: "دعم رؤية 2030",
       estates: "التركات"
+    },
+    blog: {
+      title: "مدونتنا",
+      subtitle: "أحدث الرؤى والتحديثات القانونية",
+      latestInsights: "أحدث الرؤى",
+      latestInsightsSubtitle: "ابق على اطلاع بأحدث الرؤى القانونية واتجاهات الصناعة والتحليل المتخصص من فريقنا",
+      readMore: "اقرأ المزيد",
+      backToBlog: "العودة إلى المدونة",
+      shareThisPost: "شارك هذا المقال",
+      shareOnFacebook: "شارك على فيسبوك",
+      shareOnTwitter: "شارك على تويتر",
+      shareOnLinkedIn: "شارك على لينكد إن",
+      needLegalAdvice: "تحتاج استشارة قانونية؟",
+      contactUs: "اتصل بنا",
+      tags: "العلامات",
+      noPostsAvailable: "لا توجد مقالات متاحة في الوقت الحالي.",
+      loadingPosts: "جاري تحميل المقالات...",
+      retry: "إعادة المحاولة",
+      viewAllPosts: "عرض جميع المقالات",
+      by: "بواسطة",
+      publishedOn: "نشر في"
     },
     footer: {
       description: "تقديم خدمات قانونية استثنائية بالنزاهة والخبرة والتفاني.",

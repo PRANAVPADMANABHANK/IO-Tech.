@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setSubscriptionEmail, setSubscriptionSubmitting, setSubscriptionSubmitted, setSubscriptionError, resetSubscription } from '@/lib/slices/formSlice';
 import { useTranslations } from '@/hooks/use-translations';
+import { apiService } from '@/lib/api';
 import Link from 'next/link';
 
 const Footer = () => {
@@ -30,20 +31,21 @@ const Footer = () => {
     dispatch(setSubscriptionError(null));
 
     try {
-      // Simulate API call to Strapi
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Check if subscriber already exists
+      const subscriberExists = await apiService.checkSubscriberExists(values.email);
       
-      // Check for duplicate email (simulated)
-      const existingEmails = ['test@example.com', 'existing@email.com'];
-      if (existingEmails.includes(values.email)) {
-        dispatch(setSubscriptionError(t('footer.newsletter.duplicate')));
+      if (subscriberExists) {
+        dispatch(setSubscriptionError(t('footer.newsletter.duplicate') || 'This email is already subscribed to our newsletter.'));
         toast({
-          title: t('common.error'),
-          description: t('footer.newsletter.duplicate'),
+          title: t('common.error') || 'Error',
+          description: t('footer.newsletter.duplicate') || 'This email is already subscribed to our newsletter.',
           variant: "destructive",
         });
         return;
       }
+
+      // Subscribe to newsletter using Strapi API
+      await apiService.subscribeToNewsletter(values.email);
 
       // Success
       dispatch(setSubscriptionSubmitted(true));
@@ -51,14 +53,16 @@ const Footer = () => {
       resetForm();
       
       toast({
-        title: t('common.success'),
-        description: t('footer.newsletter.success'),
+        title: t('common.success') || 'Success',
+        description: t('footer.newsletter.success') || 'Successfully subscribed to our newsletter!',
       });
     } catch (error) {
-      dispatch(setSubscriptionError(t('footer.newsletter.error')));
+      console.error('Newsletter subscription error:', error);
+      const errorMessage = t('footer.newsletter.error') || 'Failed to subscribe. Please try again later.';
+      dispatch(setSubscriptionError(errorMessage));
       toast({
-        title: t('common.error'),
-        description: t('footer.newsletter.error'),
+        title: t('common.error') || 'Error',
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -66,163 +70,101 @@ const Footer = () => {
     }
   };
 
-  const footerLinks = {
-    about: {
-      title: t('footer.links.about.title'),
-      items: t('footer.links.about.items').split(',')
-    },
-    services: {
-      title: t('footer.links.services.title'),
-      items: t('footer.links.services.items').split(',')
-    },
-    resources: {
-      title: t('footer.links.resources.title'),
-      items: t('footer.links.resources.items').split(',')
-    },
-    contact: {
-      title: t('footer.links.contact.title'),
-      items: t('footer.links.contact.items').split(',')
-    }
-  };
+  const footerLinks = [
+    { title: "About", href: "/about" },
+    { title: "Our Strategy", href: "/strategy" },
+    { title: "Our Advantages", href: "/advantages" },
+    { title: "Social Responsibility", href: "/social-responsibility" },
+    { title: "Our Services", href: "/services" }
+  ];
 
   return (
-    <footer className="bg-brown-dark text-primary-foreground">
+    <footer style={{ backgroundColor: '#6B4423' }} className="text-white">
       {/* Main Footer Content */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-6 gap-8">
-          {/* Company Info */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center space-x-2 mb-6">
-              <Link href="/" className="text-primary-foreground hover:text-brown-light transition-colors">
-                <div className="text-sm font-semibold">{t('header.logo.arabicName')}</div>
-                <div className="text-xs opacity-80">{t('header.logo.name')}</div>
-              </Link>
-            </div>
-            <p className="text-brown-light mb-6 leading-relaxed">
-              {t('footer.description')}
-            </p>
-            
-            {/* Contact Info */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-brown-light" />
-                <span className="text-brown-light">{t('footer.contact.phone')}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-brown-light" />
-                <span className="text-brown-light">{t('footer.contact.email')}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="w-5 h-5 text-brown-light" />
-                <span className="text-brown-light">{t('footer.contact.address')}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer Links */}
-          {Object.entries(footerLinks).map(([key, section]) => (
-            <div key={key}>
-              <h3 className="text-lg font-semibold mb-4 text-primary-foreground">
-                {section.title}
-              </h3>
-              <ul className="space-y-2">
-                {section.items.map((link, index) => (
-                  <li key={index}>
-                    <Link 
-                      href="#" 
-                      className="text-brown-light hover:text-primary-foreground transition-colors duration-200"
-                    >
-                      {link}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        {/* Newsletter Subscription */}
-        <div className="border-t border-brown-secondary/30 mt-12 pt-12">
-          <div className="max-w-md mx-auto text-center">
-            <h3 className="text-xl font-semibold mb-4">{t('footer.newsletter.title')}</h3>
-            <p className="text-brown-light mb-6">
-              {t('footer.newsletter.subtitle')}
-            </p>
-            
+      <div className="container mx-auto px-4 py-8">
+        {/* Newsletter, Contact and Social Links Section */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-end gap-4 mb-8">
+          {/* Newsletter Subscription and Contact */}
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
             <Formik
               initialValues={{ email: '' }}
               validationSchema={subscriptionSchema}
               onSubmit={handleSubscribe}
             >
-              {({ isSubmitting: formikSubmitting, errors, touched }) => (
-                <Form className="flex gap-2">
-                  <div className="flex-1">
-                    <Field
-                      as={Input}
-                      type="email"
-                      name="email"
-                      placeholder={t('footer.newsletter.placeholder')}
-                      className="bg-brown-secondary border-brown-secondary text-primary-foreground placeholder:text-brown-light"
-                    />
-                    {errors.email && touched.email && (
-                      <div className="text-red-400 text-sm mt-1 text-left">
-                        {errors.email}
-                      </div>
-                    )}
-                  </div>
+              {({ isSubmitting: formikSubmitting }) => (
+                <Form className="relative flex items-center">
+                  <Field
+                    as={Input}
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    className="bg-white text-black placeholder:text-gray-500 border-0 rounded-md px-3 py-2 pr-28 w-64"
+                  />
                   <Button 
                     type="submit"
                     disabled={isSubmitting || formikSubmitting}
-                    className="bg-accent hover:bg-accent/90 text-primary-foreground disabled:opacity-50"
+                    style={{ backgroundColor: '#8B4513' }}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-opacity-90 text-white px-3 py-0.5 rounded text-xs h-6"
                   >
-                    {isSubmitting ? t('common.subscribing') : t('common.subscribe')}
+                    Subscribe
                   </Button>
                 </Form>
               )}
             </Formik>
-            
-            {error && (
-              <div className="text-red-400 text-sm mt-2">
-                {error}
-              </div>
-            )}
-            
-            {isSubmitted && (
-              <div className="text-green-400 text-sm mt-2">
-                {t('footer.newsletter.success')}
-              </div>
-            )}
+            <Link href="/contact" className="text-white hover:text-gray-300 transition-colors">
+              Contacts
+            </Link>
+          </div>
+
+          {/* Social Media Links */}
+          <div className="flex gap-3">
+            <a
+              href="#"
+              className="text-white hover:text-gray-300 transition-colors"
+              aria-label="Twitter"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
+            <a
+              href="#"
+              className="text-white hover:text-gray-300 transition-colors"
+              aria-label="Facebook"
+            >
+              <Facebook className="w-5 h-5" />
+            </a>
+            <a
+              href="#"
+              className="text-white hover:text-gray-300 transition-colors"
+              aria-label="Google Plus"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.017 14h-12.017v-2h12.017v2zm7.002-7.5c-.309 0-.55.242-.55.55v1.45h-1.45c-.309 0-.55.242-.55.55s.241.55.55.55h1.45v1.45c0 .309.241.55.55.55s.55-.241.55-.55v-1.45h1.45c.308 0 .55-.242.55-.55s-.242-.55-.55-.55h-1.45v-1.45c0-.308-.241-.55-.55-.55z"/>
+              </svg>
+            </a>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Footer */}
-      <div className="border-t border-brown-secondary/30">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            {/* Copyright */}
-            <div className="text-brown-light text-sm mb-4 md:mb-0">
-              {t('footer.copyright')}
-            </div>
+        {/* Horizontal Line */}
+        <hr className="border-gray-400 mb-8" />
 
-            {/* Social Media */}
-            <div className="flex space-x-4">
-              {[
-                { icon: Facebook, href: "#", name: "facebook" },
-                { icon: Twitter, href: "#", name: "twitter" },
-                { icon: Linkedin, href: "#", name: "linkedin" },
-                { icon: Instagram, href: "#", name: "instagram" },
-              ].map(({ icon: Icon, href, name }) => (
-                <a
-                  key={name}
-                  href={href}
-                  className="w-10 h-10 bg-brown-secondary rounded-full flex items-center justify-center hover:bg-accent transition-colors duration-200"
-                  aria-label={name}
-                >
-                  <Icon className="w-5 h-5 text-primary-foreground" />
-                </a>
-              ))}
-            </div>
+        {/* Bottom Section: Navigation Links and Copyright */}
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          {/* Navigation Links */}
+          <div className="flex flex-wrap justify-center md:justify-start gap-8 mb-4 md:mb-0">
+            {footerLinks.map((link) => (
+              <Link
+                key={link.title}
+                href={link.href}
+                className="text-white hover:text-gray-300 transition-colors text-sm"
+              >
+                {link.title}
+              </Link>
+            ))}
+          </div>
+
+          {/* Copyright */}
+          <div className="text-white text-sm">
+            © 2024 . All rights reserved.
           </div>
         </div>
       </div>

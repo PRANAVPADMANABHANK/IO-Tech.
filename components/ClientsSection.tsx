@@ -4,96 +4,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { useTranslations } from '@/hooks/use-translations';
-
-interface Testimonial {
-  id: number;
-  name: string;
-  role: string;
-  company: string;
-  content: string;
-  rating: number;
-  image?: string;
-}
-
-interface Client {
-  id: number;
-  name: string;
-  logo: string;
-  industry: string;
-}
+import { useClients, useTestimonials } from '@/hooks/use-strapi-data';
 
 const ClientsSection = () => {
   const { t, currentLanguage } = useTranslations();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const { data: clients, loading: clientsLoading, error: clientsError, refetch: refetchClients } = useClients();
+  const { data: testimonials, loading: testimonialsLoading, error: testimonialsError, refetch: refetchTestimonials } = useTestimonials();
 
-  const clients: Client[] = [
-    {
-      id: 1,
-      name: "TechCorp Solutions",
-      logo: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
-      industry: "Technology"
-    },
-    {
-      id: 2,
-      name: "Global Finance Group",
-      logo: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      industry: "Finance"
-    },
-    {
-      id: 3,
-      name: "Real Estate Partners",
-      logo: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1073&q=80",
-      industry: "Real Estate"
-    },
-    {
-      id: 4,
-      name: "Manufacturing Inc",
-      logo: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-      industry: "Manufacturing"
-    },
-    {
-      id: 5,
-      name: "Healthcare Systems",
-      logo: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
-      industry: "Healthcare"
-    },
-    {
-      id: 6,
-      name: "Energy Solutions",
-      logo: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-      industry: "Energy"
-    }
-  ];
-
-  const testimonials: Testimonial[] = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      role: "CEO",
-      company: "TechCorp Solutions",
-      content: "The legal team provided exceptional service during our corporate restructuring. Their expertise and attention to detail were invaluable.",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b792?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1287&q=80"
-    },
-    {
-      id: 2,
-      name: "Ahmed Hassan",
-      role: "Managing Director",
-      company: "Global Finance Group",
-      content: "Their knowledge of international business law helped us navigate complex regulatory requirements across multiple jurisdictions.",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1287&q=80"
-    },
-    {
-      id: 3,
-      name: "Maria Rodriguez",
-      role: "General Counsel",
-      company: "Real Estate Partners",
-      content: "The team's expertise in real estate law and their strategic approach to negotiations saved us significant time and resources.",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1287&q=80"
-    }
-  ];
+  const loading = clientsLoading || testimonialsLoading;
+  const error = clientsError || testimonialsError;
 
   const nextTestimonial = () => {
     setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
@@ -102,6 +22,35 @@ const ClientsSection = () => {
   const prevTestimonial = () => {
     setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brown-primary mx-auto"></div>
+            <p className="mt-4 text-brown-secondary">Loading clients and testimonials...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">{error}</p>
+            <div className="space-x-4">
+              <Button onClick={refetchClients}>Retry Clients</Button>
+              <Button onClick={refetchTestimonials}>Retry Testimonials</Button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 bg-white">
@@ -140,14 +89,15 @@ const ClientsSection = () => {
         </div>
 
         {/* Testimonials */}
-        <div className="bg-brown-light rounded-2xl p-8 md:p-12">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-brown-dark mb-4">
-              {currentLanguage === 'en' ? 'What Our Clients Say' : 'ماذا يقول عملاؤنا'}
-            </h3>
-          </div>
+        {testimonials.length > 0 && (
+          <div className="bg-brown-light rounded-2xl p-8 md:p-12">
+            <div className="text-center mb-12">
+              <h3 className="text-3xl font-bold text-brown-dark mb-4">
+                {currentLanguage === 'en' ? 'What Our Clients Say' : 'ماذا يقول عملاؤنا'}
+              </h3>
+            </div>
 
-          <div className="relative">
+            <div className="relative">
             <div className="flex items-center justify-center">
               <div className="max-w-4xl mx-auto text-center">
                 <Quote className="w-12 h-12 text-brown-primary mx-auto mb-6" />
@@ -225,6 +175,7 @@ const ClientsSection = () => {
             </div>
           </div>
         </div>
+        )}
       </div>
     </section>
   );

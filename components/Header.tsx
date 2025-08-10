@@ -113,8 +113,8 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center space-x-2 flex-shrink-0">
             <Link href="/" className="text-primary-foreground hover:text-brown-light transition-colors">
-              <div className="text-sm font-semibold">{t('header.logo.arabicName') || 'محمد بن عبد العيني'}</div>
-              <div className="text-xs opacity-80">{t('header.logo.name') || 'MOHAMMAD BIN ABDUL AL-AINI'}</div>
+              <div className="text-sm font-semibold">{t('header.logo.arabicName') || 'IOT-TECH'}</div>
+              <div className="text-xs opacity-80">{t('header.logo.name') || 'IOT-TECH'}</div>
             </Link>
           </div>
 
@@ -154,18 +154,7 @@ const Header = () => {
                             </div>
                           ))}
                         </div>
-                        <div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                          <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-brown-primary">
-                            {t('common.readMore') || 'Read More'}
-                          </Button>
-                          <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden flex-shrink-0">
-                            <img
-                              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1287&q=80"
-                              alt="Lawyer"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </div>
+
                       </div>
                     </>
                   )}

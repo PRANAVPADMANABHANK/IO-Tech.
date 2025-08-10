@@ -1,46 +1,52 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Scale, Shield, Home, Users, Car, Globe } from "lucide-react";
+import { useServices } from "@/hooks/use-strapi-data";
+import { useTranslations } from "@/hooks/use-translations";
+import Link from "next/link";
+
+// Icon mapping for services
+const iconMap: { [key: string]: any } = {
+  'corporate-law': Scale,
+  'criminal-defense': Shield,
+  'real-estate': Home,
+  'family-law': Users,
+  'personal-injury': Car,
+  'immigration': Globe,
+  'default': Scale
+};
 
 const ServicesSection = () => {
-  const services = [
-    {
-      icon: Scale,
-      title: "Corporate Law",
-      description: "Comprehensive legal solutions for businesses of all sizes, including contract negotiations, mergers & acquisitions, and compliance matters.",
-      features: ["Contract Review", "Business Formation", "Mergers & Acquisitions", "Compliance"]
-    },
-    {
-      icon: Shield,
-      title: "Criminal Defense",
-      description: "Experienced criminal defense representation with a track record of successful outcomes in both state and federal courts.",
-      features: ["DUI Defense", "White Collar Crimes", "Federal Cases", "Appeals"]
-    },
-    {
-      icon: Home,
-      title: "Real Estate Law",
-      description: "Full-service real estate legal support for residential and commercial transactions, disputes, and property matters.",
-      features: ["Property Transactions", "Title Issues", "Zoning Law", "Real Estate Litigation"]
-    },
-    {
-      icon: Users,
-      title: "Family Law",
-      description: "Compassionate and skilled representation in all family law matters with focus on protecting your interests and children.",
-      features: ["Divorce Proceedings", "Child Custody", "Adoption", "Prenuptial Agreements"]
-    },
-    {
-      icon: Car,
-      title: "Personal Injury",
-      description: "Dedicated advocacy for injury victims to ensure maximum compensation for medical expenses, lost wages, and pain & suffering.",
-      features: ["Auto Accidents", "Slip & Fall", "Medical Malpractice", "Wrongful Death"]
-    },
-    {
-      icon: Globe,
-      title: "Immigration Law",
-      description: "Expert immigration services to help individuals and families navigate complex immigration processes and achieve their goals.",
-      features: ["Visa Applications", "Citizenship", "Green Cards", "Deportation Defense"]
-    }
-  ];
+  const { t, currentLanguage } = useTranslations();
+  const { data: services, loading, error, refetch } = useServices(currentLanguage);
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brown-primary mx-auto"></div>
+            <p className="mt-4 text-brown-secondary">Loading services...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">{error}</p>
+            <Button onClick={refetch}>Retry</Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 bg-background">
@@ -48,42 +54,64 @@ const ServicesSection = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-brown-dark mb-6">
-            Legal Consultation Services
+            {t('services.title')}
           </h2>
           <p className="text-lg text-brown-secondary max-w-3xl mx-auto leading-relaxed">
-            Our comprehensive legal services are designed to protect your interests and provide expert guidance 
-            across multiple areas of law. We deliver results-driven solutions tailored to your specific needs.
+            {t('services.subtitle')}
           </p>
         </div>
 
         {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {services.map((service, index) => (
-            <Card key={index} className="border-brown-primary/20 hover:shadow-lg transition-shadow duration-300 group">
-              <CardHeader className="text-center pb-4">
-                <div className="mx-auto w-16 h-16 bg-brown-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-brown-primary group-hover:text-white transition-colors duration-300">
-                  <service.icon className="w-8 h-8 text-brown-primary group-hover:text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-brown-dark">
-                  {service.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-brown-secondary mb-4 leading-relaxed">
-                  {service.description}
-                </CardDescription>
-                <ul className="space-y-2">
-                  {service.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center text-sm text-brown-secondary">
-                      <div className="w-2 h-2 bg-brown-primary rounded-full mr-3 flex-shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {services.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {services.map((service) => {
+              const IconComponent = iconMap[service.slug] || iconMap.default;
+              return (
+                <Link key={service.id} href={`/services/${service.slug}`}>
+                  <Card className="border-brown-primary/20 hover:shadow-lg transition-all duration-300 group cursor-pointer hover:scale-105">
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto w-16 h-16 bg-brown-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-brown-primary group-hover:text-white transition-colors duration-300">
+                        <IconComponent className="w-8 h-8 text-brown-primary group-hover:text-white" />
+                      </div>
+                      <CardTitle className="text-xl font-bold text-brown-dark group-hover:text-brown-primary transition-colors">
+                        {service.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-brown-secondary mb-4 leading-relaxed">
+                        {service.description}
+                      </CardDescription>
+                      {service.features && service.features.length > 0 && (
+                        <ul className="space-y-2">
+                          {service.features.slice(0, 3).map((feature, idx) => (
+                            <li key={idx} className="flex items-center text-sm text-brown-secondary">
+                              <div className="w-2 h-2 bg-brown-primary rounded-full mr-3 flex-shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                          {service.features.length > 3 && (
+                            <li className="text-sm text-brown-primary font-medium text-center mt-2">
+                              +{service.features.length - 3} more features
+                            </li>
+                          )}
+                        </ul>
+                      )}
+                      <div className="mt-4 text-center">
+                        <span className="text-brown-primary font-medium group-hover:text-brown-secondary transition-colors">
+                          Learn More →
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-brown-secondary text-lg">No services available at the moment.</p>
+          </div>
+        )}
 
         {/* CTA Section */}
         <div className="bg-brown-primary rounded-lg p-8 md:p-12 text-center">

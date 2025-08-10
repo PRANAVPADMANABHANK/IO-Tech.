@@ -1,49 +1,77 @@
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import SearchModal from "@/components/SearchModal"
+"use client";
 
-interface ServicePageProps {
-  params: Promise<{
-    'service-id': string
-  }>
-}
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import SearchModal from "@/components/SearchModal";
+import { apiService, type Service } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Calendar, User, Tag } from "lucide-react";
+import Link from "next/link";
 
-export default async function ServicePage({ params }: ServicePageProps) {
-  const { 'service-id': serviceId } = await params
+export default function ServiceDetailPage() {
+  const params = useParams();
+  const serviceId = params["service-id"] as string;
+  
+  const [service, setService] = useState<Service | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock service data - in real app this would come from Strapi CMS
-  const serviceData = {
-    id: serviceId,
-    title: "Legal Consultation Services",
-    description: "Comprehensive legal consultation services tailored to your specific needs. Our experienced team provides expert guidance across all areas of law.",
-    content: `
-      <p>Our legal consultation services are designed to provide you with expert guidance and strategic advice for all your legal matters. We understand that every case is unique, and we take the time to thoroughly analyze your situation before providing recommendations.</p>
-      
-      <h3>What We Offer</h3>
-      <ul>
-        <li>Initial case evaluation and strategy development</li>
-        <li>Comprehensive legal analysis and risk assessment</li>
-        <li>Document review and preparation</li>
-        <li>Negotiation support and representation</li>
-        <li>Ongoing legal counsel and support</li>
-      </ul>
-      
-      <h3>Our Process</h3>
-      <p>We follow a systematic approach to ensure you receive the best possible legal advice:</p>
-      <ol>
-        <li>Initial consultation to understand your needs</li>
-        <li>Thorough case analysis and research</li>
-        <li>Strategy development and planning</li>
-        <li>Implementation and ongoing support</li>
-      </ol>
-    `,
-    features: [
-      "Expert legal analysis",
-      "Strategic planning",
-      "Risk assessment",
-      "Document preparation",
-      "Ongoing support"
-    ]
+  useEffect(() => {
+    const fetchService = async () => {
+      try {
+        setLoading(true);
+        const serviceData = await apiService.getService(serviceId);
+        setService(serviceData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching service:', err);
+        setError('Failed to load service details. Please try again later.');
+        setService(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (serviceId) {
+      fetchService();
+    }
+  }, [serviceId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <SearchModal />
+        <div className="container mx-auto px-4 py-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brown-primary mx-auto"></div>
+            <p className="mt-4 text-brown-secondary">Loading service details...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !service) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <SearchModal />
+        <div className="container mx-auto px-4 py-20">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">{error || 'Service not found'}</p>
+            <Link href="/services">
+              <Button>Back to Services</Button>
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   return (
@@ -54,12 +82,16 @@ export default async function ServicePage({ params }: ServicePageProps) {
       {/* Service Hero Section */}
       <section className="bg-brown-primary text-primary-foreground py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto">
+            <Link href="/services" className="inline-flex items-center text-brown-light hover:text-white mb-6 transition-colors">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Services
+            </Link>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              {serviceData.title}
+              {service.title}
             </h1>
-            <p className="text-lg md:text-xl text-brown-light leading-relaxed">
-              {serviceData.description}
+            <p className="text-lg md:text-xl text-brown-light">
+              {service.description}
             </p>
           </div>
         </div>
@@ -68,39 +100,68 @@ export default async function ServicePage({ params }: ServicePageProps) {
       {/* Service Content */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="md:col-span-2">
-              <div 
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ __html: serviceData.content }}
-              />
-            </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Main Content */}
+              <div className="lg:col-span-2">
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle className="text-2xl text-brown-dark">Service Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="prose prose-lg max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: service.content }} />
+                    </div>
+                  </CardContent>
+                </Card>
 
-            {/* Sidebar */}
-            <div className="space-y-8">
-              {/* Features */}
-              <div className="bg-brown-light rounded-lg p-6">
-                <h3 className="text-xl font-bold text-brown-dark mb-4">Key Features</h3>
-                <ul className="space-y-3">
-                  {serviceData.features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-brown-secondary">
-                      <div className="w-2 h-2 bg-brown-primary rounded-full mr-3 flex-shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+                {/* Features */}
+                {service.features && service.features.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-2xl text-brown-dark">Key Features</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {service.features.map((feature, index) => (
+                          <div key={index} className="flex items-start space-x-3">
+                            <div className="w-2 h-2 bg-brown-primary rounded-full mt-2 flex-shrink-0" />
+                            <span className="text-brown-secondary">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
-              {/* CTA */}
-              <div className="bg-brown-primary rounded-lg p-6 text-primary-foreground">
-                <h3 className="text-xl font-bold mb-4">Get Started</h3>
-                <p className="text-brown-light mb-6">
-                  Ready to get expert legal consultation? Contact us today to schedule your initial consultation.
-                </p>
-                <button className="w-full bg-primary-foreground text-brown-primary hover:bg-brown-light font-semibold py-3 px-6 rounded-lg transition-colors">
-                  Book Consultation
-                </button>
+              {/* Sidebar */}
+              <div className="lg:col-span-1">
+                <Card className="sticky top-8">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-brown-dark">Service Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <Tag className="w-5 h-5 text-brown-primary" />
+                      <span className="text-brown-secondary">Service Type</span>
+                    </div>
+                    <p className="text-brown-dark font-medium">{service.title}</p>
+                    
+                    <div className="pt-4 border-t border-gray-200">
+                      <Button className="w-full bg-brown-primary hover:bg-brown-secondary text-white">
+                        Schedule Consultation
+                      </Button>
+                    </div>
+                    
+                    <div className="pt-4 border-t border-gray-200">
+                      <p className="text-sm text-brown-secondary mb-2">Need immediate assistance?</p>
+                      <Button variant="outline" className="w-full border-brown-primary text-brown-primary hover:bg-brown-primary hover:text-white">
+                        Contact Us
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
@@ -109,5 +170,5 @@ export default async function ServicePage({ params }: ServicePageProps) {
 
       <Footer />
     </div>
-  )
+  );
 }
